@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARMADA - Projet Clandestin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CONFIGURATION ET STRUCTURE ÉLARGIE --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #050505;
+            background-image: radial-gradient(#1a0000 10%, #000000 90%);
+            color: #e0e0e0;
+            font-family: 'Orbitron', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* LOGO DU SERVEUR EN ARRIÈRE-PLAN */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70vw;
+            height: 70vw;
+            max-width: 800px;
+            max-height: 800px;
+            background-image: url('https://i.imgur.com/H8v8b6K.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.04; 
+            filter: grayscale(100%) contrast(150%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 10px;
+            border-bottom: 2px solid #4a0000;
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.4);
+        }
+        h1 {
+            font-family: 'Creepster', cursive;
+            font-size: 5.5rem;
+            color: #ff0000;
+            text-shadow: 0 0 20px #ff0000, 0 0 40px #800000;
+            letter-spacing: 10px;
+            animation: flicker 2s infinite alternate;
+        }
+
+        /* BARRE DE NAVIGATION */
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #080808;
+            border-bottom: 2px solid #222;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #777;
+            padding: 20px 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn:hover {
+            color: #ff3333;
+            background: rgba(255, 0, 0, 0.05);
+        }
+        .tab-btn.active {
+            color: #ff0000;
+            border-bottom: 3px solid #ff0000;
+            text-shadow: 0 0 12px #ff0000;
+        }
+
+        /* CONTENEUR SITE */
+        .content-container {
+            flex: 1;
+            padding: 50px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            font-family: 'Creepster', cursive;
+            font-size: 3.5rem;
+            color: #ff3333;
+            margin-bottom: 30px;
+            border-left: 8px solid #ff0000;
+            padding-left: 20px;
+        }
+        p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.15rem;
+            line-height: 1.9;
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+        .card {
+            background: rgba(12, 3, 3, 0.9);
+            border: 1px solid #500;
+            padding: 40px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        /* AFFICHE DISCORD ACCUEIL */
+        .welcome-discord-banner {
+            background: linear-gradient(135deg, #200000 0%, #000000 100%);
+            border: 2px solid #ff0000;
+            padding: 35px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.3);
+        }
+        .welcome-discord-banner h3 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        /* INDICATEURS DE DANGER */
+        .danger-section { margin-top: 35px; }
+        .danger-row { margin-bottom: 20px; }
+        .danger-label { display: flex; justify-content: space-between; font-size: 1rem; margin-bottom: 8px; color: #aaa; }
+        .danger-bar-bg { background: #222; height: 15px; border-radius: 10px; overflow: hidden; border: 1px solid #444; }
+        .danger-bar-fill { height: 100%; background: linear-gradient(90deg, #800000, #ff0000); box-shadow: 0 0 10px #ff0000; }
+
+        .rules-list { list-style: none; font-family: 'Poppins', sans-serif; }
+        .rules-list li { padding: 15px 0; border-bottom: 1px solid #300; display: flex; align-items: flex-start; font-size: 1.2rem; }
+        .rules-list li::before { content: "💀"; margin-right: 20px; }
+
+        /* FONDATEURS SUR 4 COLONNES */
+        .founders-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 20px; }
+        .founder-card { background: #0f0f13; border: 1px solid #2a2a35; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.6); transition: transform 0.3s, border-color 0.3s; }
+        .founder-card:hover { transform: translateY(-5px); border-color: #ff0000; }
+        .founder-banner { height: 80px; background: #ff0000; background-image: linear-gradient(145deg, #400000, #ff0000); }
+        .founder-avatar-box { position: relative; margin-top: -45px; padding-left: 20px; }
+        .founder-avatar { width: 80px; height: 80px; border-radius: 50%; background: #111; border: 5px solid #0f0f13; object-fit: cover; }
+        .founder-info { padding: 15px; font-family: 'Poppins', sans-serif; }
+        .founder-name { font-family: 'Orbitron', sans-serif; font-size: 1.25rem; color: #fff; font-weight: bold; }
+        .founder-tag { color: #b9bbbe; font-size: 0.85rem; margin-bottom: 12px; }
+        .founder-badge { display: inline-block; background: rgba(255, 0, 0, 0.2); color: #ff3333; border: 1px solid #ff0000; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+
+        /* REJOINDRE DISCORD BTN */
+        .discord-btn { display: inline-block; background: #ff0000; color: white; text-decoration: none; padding: 20px 45px; font-weight: bold; font-size: 1.2rem; border-radius: 4px; box-shadow: 0 0 20px #ff0000; transition: all 0.3s; text-transform: uppercase; letter-spacing: 3px; margin-top: 10px; }
+        .discord-btn:hover { background: #b30000; box-shadow: 0 0 40px #ff3333; transform: scale(1.05); }
+
+        /* ENIGMES */
+        .enigma-box { text-align: center; border: 2px dashed #ff0000; background: #000; padding: 40px; position: relative; }
+        .level-indicator { color: #ff3333; font-size: 1.5rem; font-weight: bold; margin-bottom: 25px; letter-spacing: 3px; }
+        .enigma-visual { background: #0a0a0a; border: 1px solid #333; padding: 30px; margin: 25px auto; font-family: monospace; font-size: 1.3rem; color: #00ff00; white-space: pre-wrap; max-width: 600px; box-shadow: inset 0 0 15px #000; }
+        .answer-input { background: #111; border: 2px solid #ff0000; color: white; padding: 15px; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; width: 80%; max-width: 350px; text-align: center; margin-bottom: 20px; text-transform: uppercase; }
+        .submit-btn { background: #1a1a1a; color: #ff0000; border: 2px solid #ff0000; padding: 15px 40px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: bold; transition: all 0.3s; }
+        .submit-btn:hover { background: #ff0000; color: black; box-shadow: 0 0 25px #ff0000; }
+        .error-msg { color: #ff0000; margin-top: 20px; font-weight: bold; font-size: 1.1rem; min-height: 25px; }
+
+        /* TERMINAL DE CHOC */
+        .terminal-container { background: #000; border: 2px solid #300; border-radius: 5px; padding: 25px; font-family: monospace; box-shadow: 0 0 30px rgba(0,0,0,0.9); }
+        .terminal-header { border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 15px; color: #555; display: flex; justify-content: space-between; }
+        .terminal-screen { min-height: 250px; background: #020202; padding: 15px; color: #00ff00; overflow-y: auto; text-align: left; font-size: 1.1rem; line-height: 1.6; border: 1px solid #111; }
+        .terminal-btn { background: #ff0000; color: #fff; border: none; padding: 12px 30px; font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 0 15px #ff0000; transition: 0.2s; }
+        .terminal-btn:hover { background: #b30000; transform: scale(1.02); }
+
+        /* ÉCRAN VICTOIRE DE GRADE */
+        #victory-screen { display: none; background: radial-gradient(circle, #200000 0%, #020202 100%); border: 3px solid #00ff00; padding: 40px; border-radius: 10px; margin-top: 30px; text-align: center; box-shadow: 0 0 40px rgba(0, 255, 0, 0.4); animation: cyber-glitch-border 0.5s infinite alternate, scaleUp 0.4s ease-out; }
+        .victory-title { font-family: 'Creepster', cursive; font-size: 4rem; color: #00ff00; text-shadow: 0 0 20px #00ff00; letter-spacing: 5px; margin-bottom: 20px; }
+        .role-box { background: #000; border: 2px solid #00ff00; display: inline-block; padding: 15px 40px; font-size: 1.8rem; color: #00ff00; font-weight: bold; letter-spacing: 4px; margin: 20px 0; text-shadow: 0 0 10px rgba(0,255,0,0.5); box-shadow: inset 0 0 20px rgba(0,255,0,0.2); }
+        .instructions-card { background: rgba(0,0,0,0.6); border-left: 5px solid #00ff00; padding: 20px; text-align: left; max-width: 700px; margin: 25px auto 0 auto; }
+        .instructions-card p { font-size: 1.1rem; color: #fff; margin-bottom: 10px; }
+
+        /* SCREAMER INTERNE */
+        #screamer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; z-index: 99999; justify-content: center; align-items: center; }
+        #screamer-img { width: 100%; height: 100%; object-fit: cover; }
+        .shake-effect { animation: violent-shake 0.1s infinite alternate, zoom-scare 0.3s ease-out forwards; }
+
+        /* KEYFRAMES */
+        @keyframes cyber-glitch-border { 0% { border-color: #00ff00; box-shadow: 0 0 30px rgba(0, 255, 0, 0.4); } 100% { border-color: #00aa00; box-shadow: 0 0 15px rgba(0, 255, 0, 0.2); } }
+        @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes violent-shake { 0% { transform: translate(5px, 5px) rotate(0deg); filter: invert(0%) contrast(100%); } 50% { transform: translate(-5px, -5px) rotate(3deg); filter: invert(30%) contrast(150%); } 100% { transform: translate(6px, -4px) rotate(-2deg); filter: invert(0%) contrast(100%); } }
+        @keyframes zoom-scare { from { transform: scale(0.5); } to { transform: scale(1.3); } }
+        @keyframes flicker { 0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { text-shadow: 0 0 20px #ff0000, 0 0 40px #800000; } 20%, 24%, 55% { text-shadow: none; color: #220000; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <iframe src="https://www.youtube.com/embed/S_NWev67-nw?autoplay=1&loop=1&playlist=S_NWev67-nw&mute=0" allow="autoplay" style="display:none;"></iframe>
+
+    <header>
+        <h1>ARMADA</h1>
+        <p style="color: #666; font-size: 1rem; letter-spacing: 5px; font-weight: bold;">SECTION ADULTES // SYNDICAT DE TROLLS ET DE CHOC</p>
+    </header>
+
+    <nav>
+        <button class="tab-btn active" onclick="openTab('but')">Le But</button>
+        <button class="tab-btn" onclick="openTab('reglement')">Règlement</button>
+        <button class="tab-btn" onclick="openTab('fondateurs')">Les Fondateurs</button>
+        <button class="tab-btn" onclick="openTab('terminal')">Terminal Âmes Perdues</button>
+        <button class="tab-btn" onclick="openTab('enigmes')">Énigmes d'Accès</button>
+        <button class="tab-btn" onclick="openTab('rejoindre')">Rejoindre</button>
+        <button class="tab-btn" onclick="openTab('grade')">Obtenir le Rôle</button>
+    </nav>
+
+    <div class="content-container">
+
+        <div id="but" class="tab-content active">
+            <div class="welcome-discord-banner">
+                <h3>⚡ ACCÈS IMMÉDIAT AUX OPÉRATIONS ⚡</h3>
+                <p>Ne reste pas à la porte. Intègre directement le centre de commandement vocal sur notre serveur.</p>
+                <a href="https://discord.gg/armada" target="_blank" class="discord-btn" style="margin-top:10px;">DISCORD.GG/ARMADA</a>
+            </div>
+
+            <h2>Divertissement Sans Limites</h2>
+            <div class="card">
+                <p>Bienvenue au cœur de l'<strong>ARMADA</strong>. Notre collectif n'est pas un salon de discussion ordinaire. Nous regroupons des profils agilement rodés pour imposer le chaos par le divertissement.</p>
+                <p>Ici, pas de place pour les enfants. Notre but est clair : le troll absolu. Nous organisons en équipe des sessions vocales explosives où nous simulons des opérations téléphoniques d'envergure, communément appelées <strong>"Canulars S.W.A.T."</strong>, pour pousser nos cibles dans leurs derniers retranchements psychologiques.</p>
+                
+                <div class="danger-section">
+                    <p style="color:#ff3333; font-weight:bold; font-size:1.3rem; margin-bottom:15px; font-family:'Orbitron'">⚠️ PARAMÈTRES DE DANGER ET DE MENACES :</p>
+                    <div class="danger-row">
+                        <div class="danger-label"><span>ACTIVITÉ DE TROLL / SWAT</span><span>98% (CRITIQUE)</span></div>
+                        <div class="danger-bar-bg"><div class="danger-bar-fill" style="width: 98%;"></div></div>
+                    </div>
+                    <div class="danger-row">
+                        <div class="danger-label"><span>CONTENU ADULTE / CHOC VOCAL</span><span>92% (EXTRÊME)</span></div>
+                        <div class="danger-bar-bg"><div class="danger-bar-fill" style="width: 92%;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="reglement" class="tab-content">
+            <h2>La Charte Noire</h2>
+            <div class="card">
+                <p>Le non-respect de ces lois entraîne un bannissement immédiat et irréversible de nos bases de données.</p>
+                <ul class="rules-list">
+                    <li><strong>Maturité Certifiée :</strong> Être majeur ou posséder un détachement psychologique total face aux contenus partagés.</li>
+                    <li><strong>Omerta :</strong> Tout ce qui se passe ou s'organise au sein des opérations d'ARMADA reste confidentiel.</li>
+                    <li><strong>Discipline Tactique :</strong> En opération ou lors des vagues d'appels, les ordres des fondateurs s'exécutent sans discussion.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="fondateurs" class="tab-content">
+            <h2>Haut Commandement</h2>
+            <p>Voici les esprits à l'origine de la cellule ARMADA. Respectez leur autorité.</p>
+            <div class="founders-grid">
+                <div class="founder-card">
+                    <div class="founder-banner"></div>
+                    <div class="founder-avatar-box">
+                        <img class="founder-avatar" src="https://cdn.discordapp.com/attachments/1431974312029716490/1508892776811597894/Gemini_Generated_Image_ulv4fiulv4fiulv4.png?ex=6a173167&is=6a15dfe7&hm=180c6cb00a76d6dc52dd2d315f65920c5b1e6a579fc46a5eb1b54d4985370fb1&" alt="Casquette">
+                    </div>
+                    <div class="founder-info">
+                        <div class="founder-name">Casquette</div>
+                        <div class="founder-tag">❤️ ChatNoir</div>
+                        <div class="founder-badge">FONDATEUR</div>
+                    </div>
+                </div>
+
+                <div class="founder-card">
+                    <div class="founder-banner"></div>
+                    <div class="founder-avatar-box">
+                        <img class="founder-avatar" src="https://cdn.discordapp.com/attachments/1431974312029716490/1508893450630594710/Capture_decran_2026-05-26_200257.png?ex=6a173208&is=6a15e088&hm=9fd3ab8f208822a08e17bc37393fb55406a62054a2433e04a4e7619a0df2f94c&" alt="P.M">
+                    </div>
+                    <div class="founder-info">
+                        <div class="founder-name">P.M</div>
+                        <div class="founder-tag">⚡ FMD</div>
+                        <div class="founder-badge">FONDATEUR</div>
+                    </div>
+                </div>
+
+                <div class="founder-card">
+                    <div class="founder-banner"></div>
+                    <div class="founder-avatar-box">
+                        <img class="founder-avatar" src="https://cdn.discordapp.com/attachments/1431974312029716490/1508893510777045195/Capture_decran_2026-05-26_200314.png?ex=6a173216&is=6a15e096&hm=03d130df4c3be1a5f7adf01b2ce4dd75254143266c043e24b5830b5351b40e14&" alt="Zalko">
+                    </div>
+                    <div class="founder-info">
+                        <div class="founder-name">Zalko</div>
+                        <div class="founder-tag">💀 DEEP</div>
+                        <div class="founder-badge">FONDATEUR</div>
+                    </div>
+                </div>
+
+                <div class="founder-card">
+                    <div class="founder-banner"></div>
+                    <div class="founder-avatar-box">
+                        <img class="founder-avatar" src="https://cdn.discordapp.com/attachments/1431974312029716490/1508893021591306312/Capture_decran_2026-05-26_200024.png?ex=6a1731a2&is=6a15e022&hm=fb7992597d46b83a1218b328124c19c4891f2d74f99489899d4a21e2aafe7c7e&" alt="Finisher">
+                    </div>
+                    <div class="founder-info">
+                        <div class="founder-name">Finisher</div>
+                        <div class="founder-tag">lersgoogle</div>
+                        <div class="founder-badge">FONDATEUR</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="terminal" class="tab-content">
+            <h2>Terminal des Âmes Perdues</h2>
+            <div class="card">
+                <p>Attention. Ce module tente une liaison directe sécurisée avec ton navigateur pour tester les failles de ton système d'exploitation.</p>
+                <div class="terminal-container">
+                    <div class="terminal-header"><span>SESSION_ARMADA_ROOT // ACTIVE</span><span>X</span></div>
+                    <div class="terminal-screen" id="term-box">
+                        [SYS_READY] En attente d'initialisation de l'hôte... Cliquez sur le bouton rouge ci-dessous pour lancer l'injection.
+                    </div>
+                </div>
+                <button class="terminal-btn" onclick="runTerminalScare()">LANCER L'ANALYSE DU LOG</button>
+            </div>
+        </div>
+
+        <div id="enigmes" class="tab-content">
+            <h2>Filtre de Sécurité Intellectuel</h2>
+            <div class="card enigma-box" id="main-enigma-card">
+                <div class="level-indicator" id="lvl-title">NIVEAU 1 / 5 : L'INVERSION GÉOMÉTRIQUE</div>
+                <p id="lvl-desc">ChatGPT échouera car il lit les phrases mais ne comprend pas l'espace vide.</p>
+                
+                <div class="enigma-visual" id="lvl-visual">|_|  |  |  |_\n  |  |  |  |\n\nSi le bloc de départ vaut 4 et le second vaut 7... Calculez le bloc brisé.</div>
+
+                <input type="text" class="answer-input" id="answer-field" placeholder="ENTREZ LE SÉSAME">
+                <br>
+                <button class="submit-btn" onclick="checkAnswer()">SOUMETTRE</button>
+                <div class="error-msg" id="error-field"></div>
+            </div>
+
+            <div id="victory-screen">
+                <div class="victory-title">ACCÈS CENTRAL ACCORDÉ</div>
+                <p style="font-size: 1.3rem; color: #fff;">Tu viens d'annihiler notre protocole de sécurité. Tu n'es pas un robot.</p>
+                <p style="margin-bottom: 5px; color:#aaa;">GRADE DÉBLOQUÉ :</p>
+                <div class="role-box">FAUST / EXÉCUTEUR SOMBRE</div>
+
+                <div class="instructions-card">
+                    <p style="color: #00ff00; font-weight: bold; font-size: 1.2rem; margin-bottom: 15px;">⚠️ PROTOCOLE DE RÉCLAMATION :</p>
+                    <p><strong>1. FAIS UN SCREENSHOT :</strong> Prends une capture d'écran nette de cette page ouverte pour valider ta preuve visuelle.</p>
+                    <p><strong>2. INTERVENTION DISCORD :</strong> Rends-toi immédiatement sur <span>discord.gg/armada</span>.</p>
+                    <p><strong>3. ÉPREUVE VOCALE :</strong> Envoie ta preuve dans le canal de ticket ou connecte-toi directement dans les salons vocaux d'opérations pour demander ton grade au Haut Commandement.</p>
+                </div>
+                <a href="https://discord.gg/armada" target="_blank" class="discord-btn" style="background: #00ff00; color: black; box-shadow: 0 0 25px #00ff00; margin-top:30px;">REJOINDRE LE SALON DES ÉLITES</a>
+            </div>
+        </div>
+
+        <div id="rejoindre" class="tab-content" style="text-align: center;">
+            <h2>Portail Interdit</h2>
+            <div class="card">
+                <p>Tu es sur le point d'entrer dans une zone à risques. Clique ci-dessous pour rejoindre la communauté ARMADA.</p>
+                <a href="https://discord.gg/armada" target="_blank" class="discord-btn">REJOINDRE LE DISCORD ACTIF</a>
+            </div>
+        </div>
+
+        <div id="grade" class="tab-content" style="text-align: center;">
+            <h2>Accréditation Militaire</h2>
+            <div class="card">
+                <p>Si vous parvenez au bout du protocole des 5 énigmes, le mot de passe d'élite s'affichera ci-dessous.</p>
+                <div id="final-reward-box" style="margin: 30px 0; padding: 25px; background: #150505; border: 2px dashed #ff0000; color: #ff0000; font-weight: bold; font-size: 1.2rem;">
+                    ⚠️ DISPOSITIF VERROUILLÉ : RÉSOLVEZ LES ÉNIGMES DANS L'ONGLET DÉDIÉ.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="screamer-overlay">
+        <img id="screamer-img" src="https://i.imgur.com/H8v8b6K.jpg" alt="SCARE">
+        <audio id="screamer-snd" src="https://www.soundjay.com/human/sounds/shriek-1.mp3" preload="auto"></audio>
+    </div>
+
+    <script>
+        function openTab(tabId) {
+            let contents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < contents.length; i++) contents[i].classList.remove('active');
+            let buttons = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        let currentLevel = 1;
+
+        const enigmaData = {
+            1: { title: "NIVEAU 1 / 5 : L'INVERSION GÉOMÉTRIQUE", desc: "Regardez la forme du vide. ChatGPT ne voit pas le dessin :", visual: "Si la première clé vaut 4 et la seconde vaut 7... Quelle est la valeur finale du bloc brisé ?", rightAns: "11" },
+            2: { title: "NIVEAU 2 / 5 : LE CODE SANGUIN INVERSÉ", desc: "Calculez la valeur logique de ce bloc selon la règle de l'horloge inversée :", visual: "13:00 = 1\n17:00 = 5\n23:00 = 11\n00:00 = ?", rightAns: "24" },
+            3: { title: "NIVEAU 3 / 5 : STÉGANOGRAPHIE TEXTUELLE SOMBRE", desc: "Trouvez le mot d'ordre dissimulé uniquement via les lettres capitales déphasées d'un rang en arrière (-1) :", visual: "Bientôt Le Sang Coulera... Rendez-vous Au Matin Cruel Et Noir.", rightAns: "AKRQLZBLM" },
+            4: { title: "NIVEAU 4 / 5 : L'ALGORITHME DU SWAT", desc: "Un opérateur appelle le central à 3 reprises. Il transmet ces coordonnées cryptées. Trouvez la quatrième.", visual: "Alpha = 102\nBravo = 204\nCharlie = 306\nDelta = ?", rightAns: "408" },
+            5: { title: "NIVEAU 5 / 5 : LE DERNIER SOUFFLE (IMPOSSIBLE)", desc: "Compte le nombre de crânes cachés derrière cette matrice logique si 0 est la vie et 9 est la mort subite.", visual: "9 0 9 0 9\n0 9 9 9 0\n9 9 0 9 9\n0 9 9 9 0\n9 0 9 0 9", rightAns: "SANG" }
+        };
+
+        function checkAnswer() {
+            let userAns = document.getElementById('answer-field').value.trim().toUpperCase();
+            let errorField = document.getElementById('error-field');
+            let data = enigmaData[currentLevel];
+
+            if (userAns === data.rightAns) {
+                errorField.style.color = "#00ff00";
+                errorField.innerHTML = "✅ COMPOSANT SYNC. ALGORITHME SUIVANT...";
+                
+                setTimeout(() => {
+                    currentLevel++;
+                    document.getElementById('answer-field').value = "";
+                    errorField.innerHTML = "";
+                    
+                    if (currentLevel <= 5) {
+                        document.getElementById('lvl-title').innerHTML = enigmaData[currentLevel].title;
+                        document.getElementById('lvl-desc').innerHTML = enigmaData[currentLevel].desc;
+                        document.getElementById('lvl-visual').innerHTML = enigmaData[currentLevel].visual;
+                    } else {
+                        document.getElementById('main-enigma-card').style.display = 'none';
+                        document.getElementById('victory-screen').style.display = 'block';
+                        
+                        document.getElementById('final-reward-box').innerHTML = "👑 CODE VALIDÉ : CAPTURE TON ÉCRAN DES ÉNIGMES ET VA EN VOCAL !";
+                        document.getElementById('final-reward-box').style.background = "#002200";
+                        document.getElementById('final-reward-box').style.borderColor = "#00ff00";
+                        document.getElementById('final-reward-box').style.color = "#00ff00";
+                    }
+                }, 1200);
+
+            } else {
+                triggerScreamer();
+                errorField.style.color = "#ff0000";
+                errorField.innerHTML = "❌ PROTOCOLE COMPROMIS. ERREUR CRITIQUE.";
+            }
+        }
+
+        function triggerScreamer() {
+            let overlay = document.getElementById('screamer-overlay');
+            let img = document.getElementById('screamer-img');
+            let sound = document.getElementById('screamer-snd');
+            
+            overlay.style.display = 'flex';
+            img.classList.add('shake-effect');
+            
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Audio bloqué"));
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                img.classList.remove('shake-effect');
+                sound.pause();
+            }, 1800);
+        }
+
+        function runTerminalScare() {
+            let box = document.getElementById('term-box');
+            box.innerHTML = "";
+            
+            let lines = [
+                "> Connexion distante établie avec l'hôte...",
+                "> Tentative d'extraction de la clé système...",
+                "> [WARN] Pare-feu local contourné avec succès.",
+                "> Analyse comportementale : Sujet à forte réactivité.",
+                "> Recherche du dossier utilisateur principal...",
+                "> Localisation géographique approximative : EN COURS...",
+                "> [ALERT] ERREUR DE DÉPASSEMENT DE TAMPON !",
+                "> CORRUPTION DES LOGS DETECTÉE !",
+                "> ILS ARRIVENT. ILS ARRIVENT. ILS ARRIVENT.",
+                "> S.W.A.T. TRACE-ROUTE INITIALISÉ.",
+                "> EFFACEMENT TOTAL DANS 3... 2... 1..."
+            ];
+
+            let i = 0;
+            function printLine() {
+                if (i < lines.length) {
+                    let color = lines[i].includes('ALERT') || lines[i].includes('ARRIVENT') ? 'style="color:#ff0000; font-weight:bold;"' : '';
+                    box.innerHTML += `<div ${color}>${lines[i]}</div>`;
+                    i++;
+                    setTimeout(printLine, 600);
+                } else {
+                    setTimeout(() => {
+                        triggerScreamer();
+                        box.innerHTML = '<div style="color:#00ff00">> [SUCCESS] Session ARMADA stabilisée. Tu as survécu au scan.</div>';
+                    }, 500);
+                }
+            }
+            printLine();
+        }
+    </script>
+</body>
+</html>
